@@ -1,0 +1,75 @@
+Spring Project #1 
+Compositing an Animation
+
+Overview
+Media processing encompasses many software engineering topics.  Video processing is complex and computationally expensive and requires efficient algorithms and implementations.  Image and audio storage requires thoughtful and unambiguous designs.  Applications tend to be large, intricate compositions of codecs, libraries, and implementation code.  In short, media processing is an excellent platform for studying topics in this course.
+
+In this project you will use and modify a media library called "ffmpeg".  In addition, you will use the ffmpeg libraries to read and write images in a stand-alone application.  The purpose of this project is to give you additional experience with these topics:
+
+Experience working within a large, unfamiliar codebase - The best way to see how to construct (or not how to construct) a large body of code is to work in one.  In this project, you will both modify the ffmpeg libraries and use them in a separate application.  To succeed, you will need to investigate both source code and documentation within ffmpeg, and you will need to learn a bit about image representations.
+
+Succeeding in this project will involve a great deal of independent problem solving.  You will have to learn how to navigate the ffmpeg codebase, you will need to find the correct ways to modify it, and you will have to adjust makefile(s) to compile any code you add.  This will involve reading lots of code and comments, making notes, finding documentation, and browsing examples and discussions online.  In addition, you will need to conduct experiments to test your theories, and you may even need to revert to a clean ffmpeg install if you break your existing install with your changes.
+
+Writing and planning practice - There will be two major reports with this project.  First, after you install ffmpeg, you will be required to decompose the remaining project into manageable pieces and estimate how long each piece will take to complete.  The second report will be documentation on the changes you made to ffmpeg, as well as an assessment of your initial time estimates.  Any reasonable programmer should be able to rebuild and use your work from the details specified in your second report.  Report requirements are not specified here; they will be specified in a separate document.
+
+In addition to the writing practice, this will help you practice project planning.  Estimating project workloads requires that you break large projects down into small steps.  It is easier to accurately estimate the length of time a small, specific project will take than it is to estimate the time required for a vaguely defined project.  In addition, by decomposing large projects into small tasks, you can sequence and allocate work more efficiently.  (Working on one large, vague project is hard.  Working on a smaller, specific project is much easier.) 
+
+The key step to getting better at project planning is the review step.  You will only get better at this if you reflect upon your successes and failures.  (This is the purpose of the second report.)
+
+In addition to the two reports, there may be a small written exercise requiring UML diagrams.
+
+Teamwork - This project is a team project, requiring teams of two.  We will cover best practices for teams during class, and it is expected that you will apply them during this project.  Because teamwork practice is so important, students who do not select (and keep) their own partner will be assigned one randomly.  Rules for changing partners will be discussed in class.
+
+I highly recommend that you select a partner whose schedule matches your own.  In addition, no teams (or teammates) are required to work during spring break, although you may.
+
+I would like to stress two important facets of this project:  First, a great deal of independent problem solving will be required.  You will learn a lot about technologies that you will see for the first time in this project.  We cannot (and will not) give you complete instructions for every small step of this project.  We will, however, try to help you get started and help resolve any obnoxious issues.  Second, the project specification may be altered if necessary to fix problems or to improve the educational value of this work.  (This is my primary concern - I want everyone to benefit from this work and I will adapt as necessary.)
+
+It is expected that this project will take between three and four weeks.  You will be required to submit work or reports each week.  Expect to submit completed work in the week after spring break, with no late work accepted.
+
+Details
+Consider the following workflow:
+
+A user runs an "animation overlay application", hereafter called "bouncer".  The user supplies the name of an image file (a .jpg, .gif, .tif, or .png) at the command line.  The bouncer application loads the image file (as a background).  The bouncer application then repeatedly draws a ball on the background to simulate the appearance of a bouncing ball.  This creates an animation.  The application saves the frames of the animation to image files, each with a sequentially numbered name:
+
+
+The user then runs ffmpeg with appropriate command line arguments to assemble individual image files into a movie file:
+
+
+The movie file is then viewed using your favorite movie player.
+
+This workflow is the goal for this project, but I have additional requirements to help assure the integrity of this project.  Here are a few necessary details:
+
+Input image file format: Your bouncer application may specify one of the following as a required source image format:  .jpg, .gif, .tif, .tiff or .png.  It is required that you use an ffmpeg library function call to read the image.
+
+Note:  Choose a format that does not require additional libraries to be added to ffmpeg.
+
+.xkcd image file format: As part of this project, you will develop your own image file format.  We need a filename extension for our format, and I have chosen ".xkcd" for our filename extension.  This stands for "example of a kinetic coder/decoder".  (In other words, I chose the extension nearly randomly.)
+
+Since the ".xkcd" image file format does not exist, you will be required to invent the ".xkcd" image file format, and add read and write support for it within the ffmpeg libraries.  The format must be a product of your own creativity, and may not be based on any existing file format or compression method.  (Efficiency matters.  It should take no more than about one byte per pixel, on average, to store the frames of the animation. )
+
+When your bouncer application writes out the image files, the image files must be in your ".xkcd" format.  In addition, your bouncer application must use the ffmpeg library to write ".xkcd" images.  (You'll have to add support for this.)
+
+We will test your application with background images that will be challenging to represent.  A small portion of your overall grade will be based on the efficiency of your ".xkcd" format.
+
+Output movie format: The ffmpeg application supports a wide variety of video output formats.  Do not place any restrictions on the format of the output movie.  (Some video formats have resolution restrictions, this is OK.  Just make sure your code for reading ".xkcd" images does not interfere with the video creation.)
+
+Animation details: The animation must be 30 frames per second for 10 seconds.  The resolution of the output image should match the resolution of the input images.
+
+The minimum requirement for an animation is a bouncing sphere, drawn with a gradient color pattern to give the illusion of a sphere.  You may choose how the ball bounces, and you may choose to increase the number of balls.  (Just make sure the animation stays visible for ten seconds.)  If you'd like to do a different animation, please see Peter for advance approval.
+
+Program interfaces:  No GUIs are allowed for the student portions of the project.  Command line arguments will be used for both ffmpeg and your bouncer application.  The bouncer application must accept a source image filename as a parameter.  (It may accept additional, optional parameters.)
+
+GUIs displayed by ffmpeg during encoding are allowed.  You may also send a limited amount of clear debugging output to the console.  (No long listings of hexadecimal image dumps, etc.)
+
+Modifying ffmpeg:  You are required to only make minimal changes to ffmpeg.  (You are adding support for a .xkcd image file type.)  Do not remove existing ffmpeg behavior.  Your goal should be to modify as few existing files as possible.
+
+It is expected that you will need to modify makefiles to include your new .c files in the build.  This is OK, but again, try to minimize your changes. 
+
+Build instructions:  You are required to supply a makefile for your bouncer application.  We will give you further details in the final phase of the project
+
+In addition, we must be able to test all your work in a simple manner.  Building your changes will take us quite a while, and we cannot make specific configuration changes for every student.  Your code and changes must work with the standard configuration specified below.  (No custom environment variables, absolute file locations, external libraries, etc.)
+
+Commenting / Documentation:  Commenting all code is required.  You will include documentation in your written reports.
+
+Additional clarifications and requirements will be posted as the project moves along.  Please keep in mind that the intent of this project is for you to work in a large code base, and significant independent learning will be required.  (Procrastination will not be indulged.)
+

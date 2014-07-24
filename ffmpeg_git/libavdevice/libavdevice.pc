@@ -1,0 +1,14 @@
+prefix=/home/toolson/ffmpeg
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libavdevice
+Description: FFmpeg device handling library
+Version: 55.9.100
+Requires: libavfilter = 4.1.102, libavformat = 55.32.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavdevice -ldl -lXv -lX11 -lXext -lX11 -lasound -lSDL -lpthread -lm -lz -pthread -lrt
+Libs.private: 
+Cflags: -I${includedir}

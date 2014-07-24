@@ -1,0 +1,1 @@
+config:x86:x86_64:generic:linux:gcc 4.4.7 (GCC) 20120313 (Red Hat 4.4.7-3):--prefix=/home/toolson/ffmpeg --disable-yasm

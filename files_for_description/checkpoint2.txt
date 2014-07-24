@@ -1,0 +1,246 @@
+Project #1
+Checkpoint #2
+Create a .xkcd Codec 
+Project weight: 10.0
+Due Friday, March 7
+
+This checkpoint is officially due on Friday, March 7 before the end of the day.  Students who complete this project on time have done C-level (average) work.  Excellence in learning and accomplishment will be demonstrated through timeliness:
+
+Checkpoint requirements
+Work with a partner (required).  (The team programming guidelines and rules remain in place.  Please review them.)
+
+Review the project specifications and requirements section for the ".xkcd image file format".  (These requirements remain in place.)
+
+Create .c and .h files that are compatible with ffmpeg that implement decoding and encoding of .xkcd files.  Specifically:
+
+Follow the instructions in the "Getting Started" section below.  These instructions ensure that your changes will be compatible with our build.  It is important that you do not rename our identifiers or change signatures during this step.  If you do, your solution will not work for us, and you will lose massive points.
+Implement your encoder and decoder for the .xkcd file format.  Limit your changes to the files specified in the "Getting Started" section below.  Your codec should encode and decode single image frames. 
+Your code must be your own.  You can use ffmpeg code from other codecs as a guide and you should cite borrowed code.  You cannot use major portions of someone else's codec design as your own.  Design your own .xkcd file format.)
+Ensure that your source code is documented.  Even though ffmpeg is not documented, you should still follow the documentation requirements for assignments in this class. 
+Test your changes by running ffmpeg or ffplay to create or view files written in your .xkcd format.
+Ensure that you can do the following with your codec:  Use ffmpeg to convert any image to the .xkcd format.  Use ffmpeg to convert a .xkcd image to other image types.  Use ffplay to display .xkcd images.
+
+Submit your work.  Both partners should submit:
+
+Your source code files (.c and .h only) for your .xkcd codec.  All of the source code filenames must begin with "xkcd" and belong in the ffmpeg/libavcodec directory, or we will not test your code.
+Your makefile from ffmpeg/libavcodec.
+Submit a short text document titled "partner.txt".  In it, list your name and your partner's name.
+We will test your code in our ffmpeg test directory.  For functionality testing, we will use a CADE lab-1 machine and we will:
+
+Complete the "Getting Started" steps below,
+remove any existing .xkcd codec and/or files that start with xkcd,
+copy your source code files into ffmpeg/libavcodec,
+copy your makefile into ffmpeg/libavcodec,
+reconfigure the project,
+rebuild the project, and
+run tests to make sure your file format works.
+Much of this will occur within automated scripts.  We will not correct your errors to make the build work.  If your code fails to build or run, we cannot give you credit for functionality (no matter how much time you spent on it). 
+
+A small amount of credit (15%) will be reserved for code style and documentation. 
+
+Getting Started
+Note:  These steps may be refined as needed to ensure both accuracy and the success of the project.
+
+There are a few simple steps that you need to do to add a codec to ffmpeg.  Follow these carefully and exactly: 
+
+Add code to ffmpeg to 'register' the xkcd format.  You cannot just add source code files; you need to tell ffmpeg that a new codec exists.  These changes are what 'hook' your codec into ffmpeg.  (We will make these exact changes in our test version of ffmpeg.)
+
+Add "AV_CODEC_ID_XKCD" to "enum AVCodecID{}" in ffmpeg/libavcodec/avcodec.h.  This creates an integer constant that is associated with your codec.  The following three lines show where we will declare the codec for testing:
+
+    AV_CODEC_ID_FIC,
+    AV_CODEC_ID_XKCD, /* Our codec ID tag, integer value unknown */
+    
+    AV_CODEC_ID_BRENDER_PIX= MKBETAG('B','P','I','X'),
+Add "{ AV_CODEC_ID_XKCD, "xkcd" }," as the second to last array entry in "static const IdStrMap img_tags[]" in ffmpeg/libavformat/img2.c.  This assigns a string identifier to the xkcd codec.  It is unclear how this identifier is used. 
+
+In libavformat/img2enc.c, find the structure definition "AVOutputFormat ff_image2_muxer = {/*...*/};", and in the ".extensions" section, add "xkcd" into it.  This tells ffmpeg to use the img2 muxer during the process of encoding .xkcd files.  (Above, we indicate that the img2 demuxer should be used during decoding of .xkcd files, and we can make use of similar functionality to encode .xkcd files.)
+
+Add "REGISTER_ENCDEC (XKCD, xkcd);" into "void avcodec_register_all(void)" of libavcodec/allcodecs.c.  Place this statement in the video codecs section of this function.  This macro expands into statements that execute at runtime to connect your codec files to ffmpeg.
+
+Add the following codec descriptor to to the codec_descriptors array in ffmpeg/libavcodec/codec_desc.c.  Place it first in the video codec descriptors section:
+
+    { /* XKCD description */
+        .id        = AV_CODEC_ID_XKCD,
+        .type      = AVMEDIA_TYPE_VIDEO,
+        .name      = "xkcd",
+        .long_name = NULL_IF_CONFIG_SMALL("XKCD (Built for CS 3505 in U of U) image"),
+        .props     = AV_CODEC_PROP_LOSSY,
+    },
+  
+The above changes will cause ffmpeg to see your codec, but you haven't added one yet, and you haven't modified the makefile yet.  (Don't build yet.)  In addition, ffmpeg now knows there is a video codec named "xkcd", but it doesn't know anything about it.
+
+Modify the makefile so that it will build your codec.  Your codec will consist of "xkcddec.c", "xkcdenc.c", and any other xkcd files you want to add (up to ten).  You need to modify the makefile so that these files will be compiled when needed: 
+
+Edit ffmpeg/libavcodec/Makefile.  Find the section in the makefile labeled decoders/encoders...  In that section, find an appropriate spot and add the following lines of code:
+
+OBJS-$(CONFIG_XKCD_DECODER)   += xkcddec.o
+OBJS-$(CONFIG_XKCD_ENCODER)   += xkcdenc.o
+You are editing a makefile, so spacing and tabs matter.  (The above text does not have any leading spaces, and no tab characters.)
+
+If you add any additional files to ffmpeg for your codec, make sure they exist within ffmpeg/libavcodec, that their name starts with "xkcd", and that you modify the above lines to require that object files be built from your .c files (as needed).  If you look at the Makefile rules for the other codecs, you can see how multiple files are specified as requirements for that codec.
+
+Create the source code files for your codec.  Place your decoder in "xkcddec.c" and your encoder in "xkcdenc.c".  If you have definitions that are needed in both files, place them in "xkcd.h".
+
+It is up to you to create and test these codec files. 
+
+Reconfigure and rebuild your project.  Any time you change the makefile or add additional .c or .h files, you will need to reconfigure and rebuild your project.  If you only edit .c or .h files, you can simply re-make your project.
+
+Testing your codec:
+
+To convert an image:
+
+  ffmpeg -i image.bmp image.xkcd
+To display an image:
+
+  ffplay image.xkcd
+Additional hints, tips, and information
+While you cannot submit another codec as your own, that doesn't mean you cannot copy one into your own files for initial tests.  (That's what I did - my initial .xkcd codec was a copy of the .bmp codec, with appropriate identifiers renamed.  Once I had this working, I was free to modify/replace it with my own code.
+
+Many students post some tutorial help or questions in the student-to-student forum.  If you have not checked it out yet, I recommend that you take a look at it.
+
+A previous student found a link to ffmpeg's doc: http://www.ffmpeg.org/doxygen/trunk/
+
+Quote: "It has hyperlinks for quick navigation.  It also has a handful of great, somewhat-documented examples, accessible via the tab link at the top.  One of them is a good encode-decode example, showing how frames, packets, and codec contexts are used.  You can click on the hyperlinks and get right to the API for a struct/enum/def etc! "
+
+Every codec has a structure that defines capabilities, data storage, and entry points for the codec.  Here is the structure from pngdec.c:
+
+AVCodec ff_png_decoder = {
+    .name           = "png",
+    .long_name      = NULL_IF_CONFIG_SMALL("PNG (Portable Network Graphics) image"),
+    .type           = AVMEDIA_TYPE_VIDEO,
+    .id             = AV_CODEC_ID_PNG,
+    .priv_data_size = sizeof(PNGDecContext),
+    .init           = png_dec_init,
+    .close          = png_dec_end,Project #1
+Checkpoint #2
+Create a .xkcd Codec 
+Project weight: 10.0
+Due Friday, March 7
+
+This checkpoint is officially due on Friday, March 7 before the end of the day.  Students who complete this project on time have done C-level (average) work.  Excellence in learning and accomplishment will be demonstrated through timeliness:
+
+Fully functional assignments submitted before lecture on Tuesday, March 4:  A-level work.
+Fully functional assignments submitted before lecture on Thursday, March 6:  B-level work.
+Fully functional assignments submitted before Saturday, March 8:  C-level work.
+Partially functional work:  D-level (at best), most likely much less.
+Late work:  No credit. (No extensions.)
+You or your partner's latest file submission (any submission) will be graded and scored according to that date.  Please have a contingency plan in place to deal with internet outages as no extensions will be given for technical issues.
+
+Checkpoint requirements
+Work with a partner (required).  (The team programming guidelines and rules remain in place.  Please review them.)
+
+Review the project specifications and requirements section for the ".xkcd image file format".  (These requirements remain in place.)
+
+Create .c and .h files that are compatible with ffmpeg that implement decoding and encoding of .xkcd files.  Specifically:
+
+Follow the instructions in the "Getting Started" section below.  These instructions ensure that your changes will be compatible with our build.  It is important that you do not rename our identifiers or change signatures during this step.  If you do, your solution will not work for us, and you will lose massive points.
+Implement your encoder and decoder for the .xkcd file format.  Limit your changes to the files specified in the "Getting Started" section below.  Your codec should encode and decode single image frames. 
+Your code must be your own.  You can use ffmpeg code from other codecs as a guide and you should cite borrowed code.  You cannot use major portions of someone else's codec design as your own.  Design your own .xkcd file format.)
+Ensure that your source code is documented.  Even though ffmpeg is not documented, you should still follow the documentation requirements for assignments in this class. 
+Test your changes by running ffmpeg or ffplay to create or view files written in your .xkcd format.
+Ensure that you can do the following with your codec:  Use ffmpeg to convert any image to the .xkcd format.  Use ffmpeg to convert a .xkcd image to other image types.  Use ffplay to display .xkcd images.
+
+Submit your work.  Both partners should submit:
+
+Your source code files (.c and .h only) for your .xkcd codec.  All of the source code filenames must begin with "xkcd" and belong in the ffmpeg/libavcodec directory, or we will not test your code.
+Your makefile from ffmpeg/libavcodec.
+Submit a short text document titled "partner.txt".  In it, list your name and your partner's name.
+We will test your code in our ffmpeg test directory.  For functionality testing, we will use a CADE lab-1 machine and we will:
+
+Complete the "Getting Started" steps below,
+remove any existing .xkcd codec and/or files that start with xkcd,
+copy your source code files into ffmpeg/libavcodec,
+copy your makefile into ffmpeg/libavcodec,
+reconfigure the project,
+rebuild the project, and
+run tests to make sure your file format works.
+Much of this will occur within automated scripts.  We will not correct your errors to make the build work.  If your code fails to build or run, we cannot give you credit for functionality (no matter how much time you spent on it). 
+
+A small amount of credit (15%) will be reserved for code style and documentation. 
+
+Getting Started
+Note:  These steps may be refined as needed to ensure both accuracy and the success of the project.
+
+There are a few simple steps that you need to do to add a codec to ffmpeg.  Follow these carefully and exactly: 
+
+Add code to ffmpeg to 'register' the xkcd format.  You cannot just add source code files; you need to tell ffmpeg that a new codec exists.  These changes are what 'hook' your codec into ffmpeg.  (We will make these exact changes in our test version of ffmpeg.)
+
+Add "AV_CODEC_ID_XKCD" to "enum AVCodecID{}" in ffmpeg/libavcodec/avcodec.h.  This creates an integer constant that is associated with your codec.  The following three lines show where we will declare the codec for testing:
+
+    AV_CODEC_ID_FIC,
+    AV_CODEC_ID_XKCD, /* Our codec ID tag, integer value unknown */
+    
+    AV_CODEC_ID_BRENDER_PIX= MKBETAG('B','P','I','X'),
+Add "{ AV_CODEC_ID_XKCD, "xkcd" }," as the second to last array entry in "static const IdStrMap img_tags[]" in ffmpeg/libavformat/img2.c.  This assigns a string identifier to the xkcd codec.  It is unclear how this identifier is used. 
+
+In libavformat/img2enc.c, find the structure definition "AVOutputFormat ff_image2_muxer = {/*...*/};", and in the ".extensions" section, add "xkcd" into it.  This tells ffmpeg to use the img2 muxer during the process of encoding .xkcd files.  (Above, we indicate that the img2 demuxer should be used during decoding of .xkcd files, and we can make use of similar functionality to encode .xkcd files.)
+
+Add "REGISTER_ENCDEC (XKCD, xkcd);" into "void avcodec_register_all(void)" of libavcodec/allcodecs.c.  Place this statement in the video codecs section of this function.  This macro expands into statements that execute at runtime to connect your codec files to ffmpeg.
+
+Add the following codec descriptor to to the codec_descriptors array in ffmpeg/libavcodec/codec_desc.c.  Place it first in the video codec descriptors section:
+
+    { /* XKCD description */
+        .id        = AV_CODEC_ID_XKCD,
+        .type      = AVMEDIA_TYPE_VIDEO,
+        .name      = "xkcd",
+        .long_name = NULL_IF_CONFIG_SMALL("XKCD (Built for CS 3505 in U of U) image"),
+        .props     = AV_CODEC_PROP_LOSSY,
+    },
+  
+The above changes will cause ffmpeg to see your codec, but you haven't added one yet, and you haven't modified the makefile yet.  (Don't build yet.)  In addition, ffmpeg now knows there is a video codec named "xkcd", but it doesn't know anything about it.
+
+Modify the makefile so that it will build your codec.  Your codec will consist of "xkcddec.c", "xkcdenc.c", and any other xkcd files you want to add (up to ten).  You need to modify the makefile so that these files will be compiled when needed: 
+
+Edit ffmpeg/libavcodec/Makefile.  Find the section in the makefile labeled decoders/encoders...  In that section, find an appropriate spot and add the following lines of code:
+
+OBJS-$(CONFIG_XKCD_DECODER)   += xkcddec.o
+OBJS-$(CONFIG_XKCD_ENCODER)   += xkcdenc.o
+You are editing a makefile, so spacing and tabs matter.  (The above text does not have any leading spaces, and no tab characters.)
+
+If you add any additional files to ffmpeg for your codec, make sure they exist within ffmpeg/libavcodec, that their name starts with "xkcd", and that you modify the above lines to require that object files be built from your .c files (as needed).  If you look at the Makefile rules for the other codecs, you can see how multiple files are specified as requirements for that codec.
+
+Create the source code files for your codec.  Place your decoder in "xkcddec.c" and your encoder in "xkcdenc.c".  If you have definitions that are needed in both files, place them in "xkcd.h".
+
+It is up to you to create and test these codec files. 
+
+Reconfigure and rebuild your project.  Any time you change the makefile or add additional .c or .h files, you will need to reconfigure and rebuild your project.  If you only edit .c or .h files, you can simply re-make your project.
+
+Testing your codec:
+
+To convert an image:
+
+  ffmpeg -i image.bmp image.xkcd
+To display an image:
+
+  ffplay image.xkcd
+Additional hints, tips, and information
+While you cannot submit another codec as your own, that doesn't mean you cannot copy one into your own files for initial tests.  (That's what I did - my initial .xkcd codec was a copy of the .bmp codec, with appropriate identifiers renamed.  Once I had this working, I was free to modify/replace it with my own code.
+
+Many students post some tutorial help or questions in the student-to-student forum.  If you have not checked it out yet, I recommend that you take a look at it.
+
+A previous student found a link to ffmpeg's doc: http://www.ffmpeg.org/doxygen/trunk/
+
+Quote: "It has hyperlinks for quick navigation.  It also has a handful of great, somewhat-documented examples, accessible via the tab link at the top.  One of them is a good encode-decode example, showing how frames, packets, and codec contexts are used.  You can click on the hyperlinks and get right to the API for a struct/enum/def etc! "
+
+Every codec has a structure that defines capabilities, data storage, and entry points for the codec.  Here is the structure from pngdec.c:
+
+AVCodec ff_png_decoder = {
+    .name           = "png",
+    .long_name      = NULL_IF_CONFIG_SMALL("PNG (Portable Network Graphics) image"),
+    .type           = AVMEDIA_TYPE_VIDEO,
+    .id             = AV_CODEC_ID_PNG,
+    .priv_data_size = sizeof(PNGDecContext),
+    .init           = png_dec_init,
+    .close          = png_dec_end,
+    .decode         = decode_frame,
+    .init_thread_copy = ONLY_IF_THREADS_ENABLED(png_dec_init),
+    .update_thread_context = ONLY_IF_THREADS_ENABLED(update_thread_context),
+    .capabilities   = CODEC_CAP_DR1 | CODEC_CAP_FRAME_THREADS /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
+};
+The structure name must match the name used when the codec is registered.  Our AVCodec structures will have the names ff_xkcd_encoder and ff_xkcd_decoder.  These structures define entry points in the code - function names are specified to indicate which function initializes the codec, etc.  Also note that the .id field should match the ID we defined earlier.
+    .decode         = decode_frame,
+    .init_thread_copy = ONLY_IF_THREADS_ENABLED(png_dec_init),
+    .update_thread_context = ONLY_IF_THREADS_ENABLED(update_thread_context),
+    .capabilities   = CODEC_CAP_DR1 | CODEC_CAP_FRAME_THREADS /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
+};
+The structure name must match the name used when the codec is registered.  Our AVCodec structures will have the names ff_xkcd_encoder and ff_xkcd_decoder.  These structures define entry points in the code - function names are specified to indicate which function initializes the codec, etc.  Also note that the .id field should match the ID we defined earlier.

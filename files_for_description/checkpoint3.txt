@@ -1,0 +1,87 @@
+Project #1
+Checkpoint #3
+Create a Bouncer Application 
+Project weight: 10.0
+Due Saturday, March 22
+
+This checkpoint is officially due on Saturday, March 22 before the end of the day.  Excellence in learning and accomplishment will be demonstrated through timeliness:
+
+Checkpoint requirements
+Before proceeding, please go back and review the project specifications and requirements for the "bouncer" application.  (These requirements remain in place.)  Your task for checkpoint #3 is to write the bouncer application and makefile.
+
+The entire point of this assignment is to practice using ffmpeg structures and making function calls into ffmpeg; the goal is to practice using a large, unfamiliar codebase.  You are to create a stand-alone command-line application that:
+
+Makes C function calls into ffmpeg to decode a source .jpg image into image pixel data,
+repeatedly draws, overlays, or otherwise adds pixels of a ball to copies of the source image pixel data, and
+makes C function calls into ffmpeg to encode the modified copies of pixel data into .xkcd files.
+I specifically disallow any attempt to circumvent these steps, such as using shell commands to merge images of the background with a ball, or rewriting code that directly outputs .xkcd files (instead of allowing ffmpeg to do it).
+
+This checkpoint is much simpler than that last, although there are a few steps that require digging:  reading and writing files with ffmpeg, linking against ffmpeg, and creating makefiles.  Fortunately, there are many examples across the web of how to get .jpg files into AVFrame structures and how to create simple makefiles. 
+
+Keeping the above in mind, here are specific requirements / things to do:
+
+Working with a partner is allowed but not required.  You may (and probably should) switch partners, but switching is not required.  (The team programming guidelines and rules remain in place.  Please review them.)
+
+Create a directory for your work.  In the same directory as your ffmpeg directory, create a new directory with the name 'bouncer' (all lowercase).  This is where your source code as well as your built files must go.  Do not create or use any other directories (or subdirectories) for storage for this checkpoint.  Here is a diagram that shows the directory relationships:
+
+
+If you wish to access files in the ffmpeg project (such as .h files), you must use relative pathnames where appropriate.  For example, from within your bouncer directory, the ffmpeg include directory would be referenced as "../ffmpeg/include".
+
+These requirements are not ideal, but it will help us with testing.  To test your work, we will simply copy your solution into our 'bouncer' directory, build it, and run it (with our own .xkcd format compiled into ffmpeg).  You may assume that for testing, our bouncer directory is also adjacent to our ffmpeg directory (as shown above) and that we have set up environment variables exactly as shown in the project description.
+
+Create .c or .cc and .h files (as needed) within the bouncer directory that implement the bouncer application.  It should behave as described in the project description, with these additional requirements:
+
+The bouncer application should take a single command line argument.  This argument specifies the name of the background image file.  We will guarantee that the input file is always a .jpg file, and your application should reject non-jpg files (by simply testing the extension). 
+
+When drawn on the background image, the sphere(s) should occupy a 'reasonable' percentage of the image space (perhaps 10-20%), and should clearly bounce at a 'reasonable' rate.  The goal should simply be to allow the user to still see most of the background image, but also see detail in the sphere shading.
+
+Confine your bouncing ball to the bounds of the image.  (Do not assume a minimum height or width.  To make it easy, the ball size and location should be a percentage of the image dimensions.)
+
+The intent of requiring you to shade the sphere is to have you use different colors as you draw.  We will not evaluate your sphere shading for technical correctness, so approximate shading is sufficient.  (Don't spend time applying 3D math for this unless you really want to - an approximation is OK.)
+
+Your bouncer application should output 300 files (into the current working directory) containing the frames of the animation.  The output files must be in the .xkcd format, and should be numbered sequentially, such as "frame000.xkcd" through "frame299.xkcd".
+
+Your bouncer application must use ffmpeg libraries to read and write images.  (Don't do 'manual' file I/O - use ffmpeg libraries for this.)  While you may use online example code or tutorials to see how to use ffmpeg from within an application, it is important that you do not use (or even view) code from other CS 3505 students (past or current).
+
+Your cited code may exceed 10% for portions of the code that read and write images, but citations must clearly identify those exact portions of code that are borrowed.  (No 'blanket' citations.)
+
+Create a simple makefile in your bouncer directory with the following rules:
+
+all - Rebuilds the bouncer application into an executable named "bouncer".  (This should be the default rule.)
+
+clean - Removes the bouncer application, all .o files, all movie files, and all .xkcd files from the directory.
+
+movie - Uses ffmpeg to assemble the 300 frames of the movie into an .mp4 movie named "movie.mp4".
+
+Each makefile rule should be dependent on the appropriate files (except for 'clean', of course).
+
+Create a .zip of your bouncer directory after you have 'cleaned' the directory.  Name the .zip file "project1_part3.zip".  Use this sequence of commands to create the .zip file:
+
+    cd bouncer
+    make clean
+    cd ..
+    zip -r project1_part3.zip bouncer
+  
+This .zip file will contain your source code and makefile.  The .zip may also contain a few moderately-sized .jpg images.  This .zip should be less than about one megabyte.  (If you don't have .jpg images in your .zip, it will only be a few kilobytes.)
+
+Submit your work.  Both partners should submit:
+
+Your .zip containing your bouncer directory (your source code files and makefile).
+Submit a short text document titled "partner.txt".  In it, list your name and your partner's name.
+You may make the following assumptions about our testing:
+
+We will set up our directories as indicated above.
+We will have our environment variables set up as described in the project description.
+Our .xkcd codec will have the ID and properties described in checkpoint #2.
+Our .xkcd format will support RBG24 images.  (This shouldn't matter, but I want to make clear that we won't reduce image quality.)
+We will test your application with two average-sized .jpg images (nothing tricky).
+We will allow about five minutes to build the animation frame images (one second per frame) on an un-busy machine.
+We will use our solution to the second checkpoint when building the ffmpeg libraries.  You must not make any assumptions about the .xkcd file format we will use, or what functions we provide.  This is precisely why you must make calls into ffmpeg to encode the .xkcd files.
+
+As long as you are using C function calls into ffmpeg for decoding of the jpg image and for encoding of the .xkcd image, you may do other required work in any reasonable way within your C or C++ program.  You may use C or C++.  You may use existing C tutorial code.  You may open files for reading or writing of file data (that is passed to/from ffmpeg).  You may composite images by merging pixels, or you can just draw pixels by modifying data arrays.  Please just meet the spirit of the assignment.
+
+As part of this flexibility, consider this example:  One student indicates that ffmpeg may require images to be numbered starting at frame001.xkcd.  This would be OK.  I will accept small, irrelevant changes that don't break our testing methods and that retain the intended goals in the assignment.
+
+(In the event that ffmpeg is updated, I reserve the right to specify a required ffmpeg version.  I hope this will not be needed.)
+
+A small amount of credit (15%) will be reserved for code style and documentation.  Also, appropriate deductions will be applied if, by ignoring instructions or by intent, you create grading difficulties for the TAs.

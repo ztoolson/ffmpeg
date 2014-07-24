@@ -1,0 +1,61 @@
+Unzip libavcodec.a.zip in ffmpeg/libavcodec/ and ffmpeg/lib/
+  
+Installing ffmpeg
+Installing ffmpeg is straightforward.  Follow these instructions in your CADE lab account.  (Students who want to do this on their own computer or in a different environment must verify their code works with a standard CADE lab build of ffmpeg.)
+
+Get ffmpeg from the Git repository.  Change to your home directory, then use this Git command:
+
+    git  clone  git://source.ffmpeg.org/ffmpeg.git  ffmpeg
+  
+A copy of the project will be placed inside a directory named "ffmpeg".
+
+Set environment variables to point to the Git libraries, and to add the ffmpeg binary directory to your path.  Place these lines in your .cshrc file in your home directory:
+
+# For ffmpeg
+
+setenv FFMPEG_LIB_DIR "/home/userid/ffmpeg"
+setenv PATH "${PATH}:$FFMPEG_LIB_DIR/bin"
+setenv PKG_CONFIG_PATH "${FFMPEG_LIB_DIR}/lib/pkgconfig" 
+Now, edit the first line, and replace "userid" with your CADE lab login name.  The path on the first line should point to the ffmpeg directory within your home directory. 
+
+Either log out and log in again, or close your terminal window and open a new one.  Verify that the environment variables are set:
+
+    printenv  |  sort
+  
+Double-check the environment variables, and make sure the ffmpeg binaries directory is in your path.  If this is wrong, you'll run into problems soon.
+
+Change into your ffmpeg directory, and run the configure script that is supplied with ffmpeg.  You will supply two additional parameters:  First, the prefix argument specifies the destination for the compiled libraries.  The second argument will cause some build actions to avoid using an assembler that we do not have:
+
+    ./configure  --prefix=$FFMPEG_LIB_DIR  --disable-yasm
+  
+Be patient.  The configure script is entirely silent for a good long while, then it prints out a lot of information about the build settings for ffmpeg.  If the configure script fails, you will not be able to make the ffmpeg project.  (If needed, fix any problems that are preventing the configure script from completing.)
+
+(Optional step.)  You may remove fate.texi from the ffmpeg/doc folder.  It will cause a build error.  I chose not to remove the file, and just to build twice.  (For some reason, the error is ignored the second time through.)  You may choose either course of action.
+
+Build the project.  Switch to the ffmpeg directory, then make it:
+
+    make
+  
+The build process takes several minutes.  (If you get an error on fate.texi, just rebuild it again.)  You will see lots of warnings when you build.  (This annoys me, but there is nothing we can do about them.)
+
+If the build stops due to any obvious errors, you'll need to resolve them.  (Remember, rebuild if you get an error on fate.texi.)
+
+After the build, you need to 'install' the ffmpeg files.  This is just the process of making the libraries and copying documentation and include files to the appropriate directories.  Use this command to complete the installation:
+
+    make install
+  
+Verify that the ffmpeg libraries are within the ffmpeg/lib directory, and that the ffmpeg executables are within the ffmpeg/bin directory (the binaries directory).  If not, you will need to check your environment variables, then try the configuration and build steps again.
+
+(Optional?) Repeat step 3.  (I had problems the first time because the shell did not immediately recognize that new binaries were available.  Logging out and logging in again fixed this.)
+
+Go get an image file from somewhere, and save it.  Then, try viewing a file with ffplay:
+
+    ffplay  mypicture.tiff
+  
+You'll need to change the filename, of course.  The ffplay program will load the image, then open a window and display it as if it were a movie.  Closing the window will close the program.
+
+If your path is incorrect, the ffplay executable will not be found.  You can try logging out and logging in again (see the previous step).  Also, you can try executing the binary by specifying its exact path:
+
+    /home/yourloginhere/ffmpeg/bin/ffplay  mypicture.tiff
+  
+If you get this far, you've finished installing ffmpeg.  You can now modify its source code files to change its behavior!  Each time you modify the files, you'll need to make it again, then install it again.  (Don't configure it again, unless you like to wait.)
